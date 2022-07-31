@@ -6,3 +6,11 @@
 //
 
 import Foundation
+
+struct CardData{
+    var iconURL: String
+    var name: String
+    var health: Int
+    var attack: Int
+    var defense: Int
+}
