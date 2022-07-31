@@ -10,18 +10,161 @@ import Foundation
 extension ContentView{
     @MainActor class ViewModel: ObservableObject{
         
-        @Published private(set) var firstCardData: CardData?
-        private var pokemonCount: Int?
+        @Published private(set) var frontData: CardData?
+        @Published private(set) var backData: CardData?
+        @Published var isFlipped: Bool = false
         
+        
+        private var pageNum: Int = 0
+        private var pokemonCollection: [Result] = []
         private var dataModel = DataModel()
          
         func viewDidLoad(){
-            dataModel.fetchAPIdata(){ [unowned self] error, data in
-                print(data)
+            
+            let semaphore = DispatchSemaphore(value: 0)
+            self.pageNum = 0
+            dataModel.fetchAPIdata(for: pageNum){ [unowned self] error, data in
+                guard let data = data else {
+                    print(error?.localizedDescription as Any)
+                    semaphore.signal()
+                    return
+                }
+                self.pokemonCollection = data.results
+                semaphore.signal()
+            }
+            
+            semaphore.wait()
+            // This is the first state of the card data, so I am using direct indices to access data for both
+            // cards.
+            if !pokemonCollection.isEmpty{
+                
+                let dispatchGroup = DispatchGroup()
+                
+                dataModel.fetchPokemonData(for: pokemonCollection[0].url){ [unowned self] error, data in
+                    dispatchGroup.enter()
+                    guard let data = data else {
+                        print(error?.localizedDescription as Any)
+                        dispatchGroup.leave()
+                        return
+                    }
+                    Task{
+                        dispatchGroup.leave()
+                        self.frontData = .init(
+                            iconURL: data.sprites.frontDefault,
+                            name: data.name,
+                            health: data.stats.first{
+                                $0.stat.name.lowercased() == "hp"
+                            }?.baseStat ?? 0,
+                            attack: data.stats.first{
+                                $0.stat.name.lowercased() == "attack"
+                            }?.baseStat ?? 0,
+                            defense: data.stats.first{
+                                $0.stat.name.lowercased() == "defense"
+                            }?.baseStat ?? 0)
+                        print(frontData as Any)
+                    }
+                }
+                
+                dataModel.fetchPokemonData(for: pokemonCollection[1].url){ [unowned self] error, data in
+                    dispatchGroup.enter()
+                    guard let data = data else {
+                        print(error?.localizedDescription as Any)
+                        dispatchGroup.leave()
+                        return
+                    }
+                    Task{
+                        dispatchGroup.leave()
+                        self.backData = .init(
+                            iconURL: data.sprites.frontDefault,
+                            name: data.name,
+                            health: data.stats.first{
+                                $0.stat.name.lowercased() == "hp"
+                            }?.baseStat ?? 0,
+                            attack: data.stats.first{
+                                $0.stat.name.lowercased() == "attack"
+                            }?.baseStat ?? 0,
+                            defense: data.stats.first{
+                                $0.stat.name.lowercased() == "defense"
+                            }?.baseStat ?? 0)
+                        print(backData as Any)
+                    }
+                }
+                
+                dispatchGroup.notify(queue: .main){
+                    self.pokemonCollection.removeFirst()
+                    self.pokemonCollection.removeFirst()
+                }
             }
         }
         
         
-        
+        func flipCard(){
+            // If no pokemon left in current page, itarates to next page.
+            let semaphore = DispatchSemaphore(value: 0)
+            if self.pokemonCollection.isEmpty {
+                pageNum += 1
+                dataModel.fetchAPIdata(for: pageNum){ [unowned self] error, data in
+                    guard let data = data else {
+                        print(error?.localizedDescription as Any)
+                        semaphore.signal()
+                        return
+                    }
+                    self.pokemonCollection = data.results
+                    semaphore.signal()
+                }
+            } else {
+                semaphore.signal()
+            }
+            
+            semaphore.wait()
+            if isFlipped{
+                self.dataModel.fetchPokemonData(for: pokemonCollection.first!.url){ [unowned self] error, data in
+                    guard let data = data else {
+                        print(error?.localizedDescription as Any)
+                        return
+                    }
+                    Task{
+                        self.frontData = .init(
+                            iconURL: data.sprites.frontDefault,
+                            name: data.name,
+                            health: data.stats.first{
+                                $0.stat.name.lowercased() == "hp"
+                            }?.baseStat ?? 0,
+                            attack: data.stats.first{
+                                $0.stat.name.lowercased() == "attack"
+                            }?.baseStat ?? 0,
+                            defense: data.stats.first{
+                                $0.stat.name.lowercased() == "defense"
+                            }?.baseStat ?? 0)
+                        print(self.frontData as Any)
+                    }
+                }
+                pokemonCollection.removeFirst()
+            } else {
+                self.dataModel.fetchPokemonData(for: pokemonCollection.first!.url){ [unowned self] error, data in
+                    guard let data = data else {
+                        print(error?.localizedDescription as Any)
+                        return
+                    }
+                    Task{
+                        self.backData = .init(
+                            iconURL: data.sprites.frontDefault,
+                            name: data.name,
+                            health: data.stats.first{
+                                $0.stat.name.lowercased() == "hp"
+                            }?.baseStat ?? 0,
+                            attack: data.stats.first{
+                                $0.stat.name.lowercased() == "attack"
+                            }?.baseStat ?? 0,
+                            defense: data.stats.first{
+                                $0.stat.name.lowercased() == "defense"
+                            }?.baseStat ?? 0)
+                        print(self.backData as Any)
+                    }
+                }
+                pokemonCollection.removeFirst()
+            }
+            
+        }
     }
 }

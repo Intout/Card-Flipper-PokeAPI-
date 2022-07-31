@@ -6,10 +6,10 @@ struct ContentView: View {
     
     var body: some View {
         VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundColor(.accentColor)
-            Text("Hello, world!")
+            Button("Flip Card"){
+                viewModel.flipCard()
+                viewModel.isFlipped.toggle()
+            }
         }
         .onAppear{
             viewModel.viewDidLoad()
