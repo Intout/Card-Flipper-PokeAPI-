@@ -3,25 +3,32 @@ import SwiftUI
 struct ContentView: View {
     
     @StateObject private var viewModel = ViewModel()
+    @State var frontDegree: CGFloat = 0
     
     var body: some View {
-        VStack {
+        GeometryReader{ geometry in
             
-            HStack{
-                Button("Reset"){
-                    viewModel.viewDidLoad()
+            VStack {
+                HStack{
+                    Button("Reset"){
+                        viewModel.viewDidLoad()
+                    }
+                    Spacer()
                 }
+                .padding([.leading, .trailing], 20)
+                Spacer()
+                CardView(cardData: $viewModel.frontData, degree: $frontDegree)
+                    .frame(width: 3 * geometry.size.width/4, height: 2 * geometry.size.height/3)
                 Spacer()
             }
-            Spacer()
-            Button("Flip Card"){
-                viewModel.flipCard()
-                viewModel.isFlipped.toggle()
+            
+            .background{
+                Color.cyan
+                    .ignoresSafeArea(.container)
             }
-            Spacer()
-        }
-        .onAppear{
-            viewModel.viewDidLoad()
+            .onAppear{
+                viewModel.viewDidLoad()
+            }
         }
     }
 }

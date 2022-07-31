@@ -10,8 +10,8 @@ import Foundation
 extension ContentView{
     @MainActor class ViewModel: ObservableObject{
         
-        @Published private(set) var frontData: CardData?
-        @Published private(set) var backData: CardData?
+        @Published var frontData: CardData?
+        @Published var backData: CardData?
         @Published var isFlipped: Bool = false
         
         
@@ -62,6 +62,7 @@ extension ContentView{
                                 $0.stat.name.lowercased() == "defense"
                             }?.baseStat ?? 0)
                         print(frontData as Any)
+                        
                     }
                 }
                 
