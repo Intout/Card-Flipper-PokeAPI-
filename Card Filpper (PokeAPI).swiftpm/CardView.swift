@@ -56,7 +56,8 @@ struct CardView: View, Flipable {
                 .cornerRadius(50)
             }
         }
-        .rotation3DEffect(Angle(degrees: degree), axis: (x: 0, y: 1, z: 0))
+        .rotation3DEffect(Angle(degrees: degree), axis: (x: 0.1, y: 1, z: 0))
+        
     }
 }
 

@@ -13,12 +13,13 @@ extension ContentView{
         @Published var frontData: CardData?
         @Published var backData: CardData?
         @Published var isFlipped: Bool = false
+        let delay: Double = 0.5
         
         
         private var pageNum: Int = 0
         private var pokemonCollection: [Result] = []
         private var dataModel = DataModel()
-         
+        
         func viewDidLoad(){
             
             let semaphore = DispatchSemaphore(value: 0)
@@ -118,54 +119,35 @@ extension ContentView{
             }
             
             semaphore.wait()
-            if isFlipped{
-                self.dataModel.fetchPokemonData(for: pokemonCollection.first!.url){ [unowned self] error, data in
-                    guard let data = data else {
-                        print(error?.localizedDescription as Any)
-                        return
-                    }
-                    Task{
-                        self.frontData = .init(
-                            iconURL: data.sprites.frontDefault,
-                            name: data.name,
-                            health: data.stats.first{
-                                $0.stat.name.lowercased() == "hp"
-                            }?.baseStat ?? 0,
-                            attack: data.stats.first{
-                                $0.stat.name.lowercased() == "attack"
-                            }?.baseStat ?? 0,
-                            defense: data.stats.first{
-                                $0.stat.name.lowercased() == "defense"
-                            }?.baseStat ?? 0)
-                        print(self.frontData as Any)
-                    }
+            self.dataModel.fetchPokemonData(for: pokemonCollection.first!.url){ [unowned self] error, data in
+                guard let data = data else {
+                    print(error?.localizedDescription as Any)
+                    return
                 }
-                pokemonCollection.removeFirst()
-            } else {
-                self.dataModel.fetchPokemonData(for: pokemonCollection.first!.url){ [unowned self] error, data in
-                    guard let data = data else {
-                        print(error?.localizedDescription as Any)
-                        return
+                Task{
+                    let cardData: CardData = .init(
+                        iconURL: data.sprites.frontDefault,
+                        name: data.name,
+                        health: data.stats.first{
+                            $0.stat.name.lowercased() == "hp"
+                        }?.baseStat ?? 0,
+                        attack: data.stats.first{
+                            $0.stat.name.lowercased() == "attack"
+                        }?.baseStat ?? 0,
+                        defense: data.stats.first{
+                            $0.stat.name.lowercased() == "defense"
+                        }?.baseStat ?? 0)
+                    print(cardData as Any)
+                    
+                    if isFlipped{
+                        self.frontData = cardData
+                    } else {
+                        self.backData = cardData
                     }
-                    Task{
-                        self.backData = .init(
-                            iconURL: data.sprites.frontDefault,
-                            name: data.name,
-                            health: data.stats.first{
-                                $0.stat.name.lowercased() == "hp"
-                            }?.baseStat ?? 0,
-                            attack: data.stats.first{
-                                $0.stat.name.lowercased() == "attack"
-                            }?.baseStat ?? 0,
-                            defense: data.stats.first{
-                                $0.stat.name.lowercased() == "defense"
-                            }?.baseStat ?? 0)
-                        print(self.backData as Any)
-                    }
+                    isFlipped.toggle()
                 }
-                pokemonCollection.removeFirst()
             }
-            
+            pokemonCollection.removeFirst()
         }
     }
 }
