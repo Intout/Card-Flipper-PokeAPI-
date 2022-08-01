@@ -15,7 +15,7 @@ struct CardView: View, Flipable {
     
     @Binding var cardData: CardData?
     @Binding var degree: CGFloat
-    @Binding var image: AsyncImage<Image>?
+    @Binding var image: AsyncImage<Image?>?
     @Binding var flipCount: Int
     
     var body: some View {
@@ -32,9 +32,10 @@ struct CardView: View, Flipable {
                     Spacer()
                     if let image = image{
                         image
+                            .scaledToFit()
+                            
                     } else {
-                        Image(systemName: "square.and.arrow.down.fill")
-                            .scaledToFill()
+                        ProgressView()
                     }
                     Spacer()
                     HStack{
