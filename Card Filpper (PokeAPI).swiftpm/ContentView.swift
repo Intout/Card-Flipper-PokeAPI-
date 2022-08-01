@@ -84,6 +84,7 @@ private extension ContentView{
     func flipCardAction(){
         viewModel.flipCard()
         if viewModel.isFlipped{
+            fronImage = nil
             withAnimation(.linear(duration: viewModel.delay)){
                 backDegree = 89.99
             }
@@ -93,6 +94,7 @@ private extension ContentView{
             
             
         } else {
+            backImage = nil
             withAnimation(.linear(duration: viewModel.delay)){
                 frontDegree = -89.99
             }

@@ -30,7 +30,7 @@ struct CardView: View, Flipable {
                 Text("Loading...")
             } else {
                 VStack{
-                    HStack{
+                    HStack(alignment: .center){
                         Spacer()
                         Text("\(cardData!.name.uppercased())")
                         Spacer()
@@ -44,22 +44,30 @@ struct CardView: View, Flipable {
                         ProgressView()
                     }
                     Spacer()
-                    HStack{
+                    HStack(spacing: 0){
                         VStack{
                             Text("HP")
+                                .font(.footnote)
                             Text("\(cardData!.health)")
+                                .font(.title)
                         }
-                        Spacer()
+                        .frame(minWidth: 0, maxWidth: .infinity)
                         VStack{
                             Text("Attack")
+                                .font(.footnote)
                             Text("\(cardData!.attack)")
+                                .font(.title)
                         }
-                        Spacer()
+                        .frame(minWidth: 0, maxWidth: .infinity)
                         VStack{
                             Text("Defense")
+                                .font(.footnote)
                             Text("\(cardData!.defense)")
+                                .font(.title)
                         }
+                        .frame(minWidth: 0, maxWidth: .infinity)
                     }
+                    //.fixedSize(horizontal: true, vertical: false)
                 }
                 .padding([.leading, .trailing], 30)
                 .padding([.top, .bottom], 30)
@@ -70,7 +78,7 @@ struct CardView: View, Flipable {
             }
             
         }
-        .rotation3DEffect(Angle(degrees: degree), axis: (x: flipCount % 2 == 0 ? 1 : 0.1, y: flipCount % 2 == 0 ? 0.1 : 1, z: 0))
+        .rotation3DEffect(Angle(degrees: degree), axis: (x: flipCount % 2 == 0 ? 1 : 0.1, y: flipCount % 2 == 0 ? 0.1 : -1, z: 0))
         
         
     }
