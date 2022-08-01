@@ -7,9 +7,11 @@ struct ContentView: View {
     @State var backDegree: CGFloat = 89.99
     @State private var flipCount: Int = 0
     
-    @State private var fronImage: AsyncImage<Image?>?
-    @State private var backImage: AsyncImage<Image?>?
+    @State private var fronImage: Image?
+    @State private var backImage: Image?
     
+    @State private var frontColorAvarage: Color?
+    @State private var backColorAvarage: Color?
     @State private var backgroundColor: Color = .clear
     
     var body: some View {
@@ -29,25 +31,23 @@ struct ContentView: View {
                     CardView(cardData: $viewModel.frontData, degree: $frontDegree, image: $fronImage, flipCount: $flipCount)
                         .frame(width: 3 * geometry.size.width/4, height: 2 * geometry.size.height/3)
                 
-                        .onReceive(viewModel.$frontData){ data in
-                            fronImage = nil
-                            if let url = URL(string: data?.iconURL ?? ""){
-                                fronImage = AsyncImage(url: url){ data in
-                                    if let image = data.image{
-                                        image.resizable()
-                                    }
+                        .onReceive(viewModel.$frontImageData){ data in
+                            if let data = data{
+                                var uiImage = UIImage(data: data)!
+                                fronImage = Image(uiImage: uiImage)
+                                withAnimation(.linear(duration: viewModel.delay)){
+                                    backgroundColor = Color( uiImage.averageColor ?? .clear)
                                 }
                             }
                         }
                     CardView(cardData: $viewModel.backData, degree: $backDegree, image: $backImage, flipCount: $flipCount)
                         .frame(width: 3 * geometry.size.width/4, height: 2 * geometry.size.height/3)
-                        .onReceive(viewModel.$backData){ data in
-                            backImage = nil
-                            if let url = URL(string: data?.iconURL ?? ""){
-                                backImage = AsyncImage(url: url){ data in
-                                    if let image = data.image{
-                                        image.resizable()
-                                    }
+                        .onReceive(viewModel.$backImageData){ data in
+                            if let data = data{
+                                var uiImage = UIImage(data: data)!
+                                backImage = Image(uiImage: uiImage)
+                                withAnimation(.linear(duration: viewModel.delay)){
+                                    backgroundColor = Color( uiImage.averageColor ?? .clear)
                                 }
                             }
                         }
@@ -80,6 +80,8 @@ private extension ContentView{
             withAnimation(.interpolatingSpring(stiffness: 100, damping: 10).delay(viewModel.delay)){
                 frontDegree = 0.01
             }
+            
+            
         } else {
             withAnimation(.linear(duration: viewModel.delay)){
                 frontDegree = -89.99

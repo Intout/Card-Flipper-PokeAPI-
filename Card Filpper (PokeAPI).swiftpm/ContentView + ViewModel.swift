@@ -12,6 +12,8 @@ extension ContentView{
         
         @Published var frontData: CardData?
         @Published var backData: CardData?
+        @Published var frontImageData: Data?
+        @Published var backImageData: Data?
         @Published var isFlipped: Bool = false
         let delay: Double = 0.5
         
@@ -63,6 +65,7 @@ extension ContentView{
                                 $0.stat.name.lowercased() == "defense"
                             }?.baseStat ?? 0)
                         print(frontData as Any)
+                        getImageData(from: data.sprites.frontDefault)
                         
                     }
                 }
@@ -144,10 +147,33 @@ extension ContentView{
                     } else {
                         self.backData = cardData
                     }
+                    getImageData(from: cardData.iconURL)
                     isFlipped.toggle()
                 }
             }
             pokemonCollection.removeFirst()
         }
+        
+        func getImageData(from link: String){
+            
+            guard let url = URL(string: link) else { return }
+            
+            URLSession.shared.dataTask(with: url) { [unowned self] data, response, error in
+                guard
+                    let httpURLResponse = response as? HTTPURLResponse, httpURLResponse.statusCode == 200,
+                    let mimeType = response?.mimeType, mimeType.hasPrefix("image"),
+                    let data = data, error == nil
+                else { return }
+                Task{
+                    if self.isFlipped {
+                        self.backImageData = data
+                    } else {
+                        self.frontImageData = data
+                    }
+                }
+                    
+            }.resume()
+        }
+        
     }
 }

@@ -15,7 +15,7 @@ struct CardView: View, Flipable {
     
     @Binding var cardData: CardData?
     @Binding var degree: CGFloat
-    @Binding var image: AsyncImage<Image?>?
+    @Binding var image: Image?
     @Binding var flipCount: Int
     
     var body: some View {
@@ -32,8 +32,11 @@ struct CardView: View, Flipable {
                     Spacer()
                     if let image = image{
                         image
+                            .resizable()
                             .scaledToFit()
-                            
+                            .background(){
+                                Color.blue
+                            }
                     } else {
                         ProgressView()
                     }
