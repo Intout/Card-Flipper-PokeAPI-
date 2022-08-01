@@ -15,6 +15,8 @@ struct ContentView: View {
     @State private var backColorAvarage: Color?
     @State private var backgroundColor: Color = .purple
     
+    @State private var animationLock: Bool = false
+    
     @Environment(\.horizontalSizeClass) var sizeClass
     
     var body: some View {
@@ -35,7 +37,7 @@ struct ContentView: View {
                             }
                             viewModel.isFlipped.toggle()
                         }
-                        cardResetAnimation(displayWith: geometry.size.height)
+                        cardResetAction(displayWith: geometry.size.height)
                     }){
                         ZStack{
                             Circle()
@@ -98,9 +100,12 @@ struct ContentView: View {
                         }
                 }
                     .onTapGesture {
-                        flipCardAction()
-                        // Flip count is saved to memory to switching between horizontal and vertical flip.
-                        flipCount += 1
+                        // Don't take input till animation is finished.
+                        if !animationLock{
+                            flipCardAction()
+                            // Flip count is saved to memory to switching between horizontal and vertical flip.
+                            flipCount += 1
+                        }
                     }
                 Spacer()
             }
@@ -118,6 +123,7 @@ struct ContentView: View {
 
 private extension ContentView{
     func flipCardAction(){
+        animationLock.toggle()
         viewModel.flipCard()
         if viewModel.isFlipped{
             frontImage = nil
@@ -138,15 +144,22 @@ private extension ContentView{
                 backDegree = 0.01
             }
         }
+        DispatchQueue.main.asyncAfter(deadline: .now() + viewModel.delay * 2){
+            animationLock.toggle()
+        }
     }
     
-    func cardResetAnimation(displayWith: CGFloat){
+    func cardResetAction(displayWith: CGFloat){
+        animationLock.toggle()
         withAnimation(.interpolatingSpring(stiffness: 100, damping: 10)){
             cardOffset = displayWith
         }
         viewModel.viewDidLoad()
         withAnimation(.interpolatingSpring(stiffness: 100, damping: 10).delay(viewModel.delay)){
             cardOffset = 0
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + viewModel.delay * 2){
+            animationLock.toggle()
         }
     }
 }

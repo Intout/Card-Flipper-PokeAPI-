@@ -25,7 +25,7 @@ struct CardView: View, Flipable {
             // Overlay Rectangle for transparent borders.
             Rectangle()
                 .foregroundColor(Color(uiColor: .white.withAlphaComponent(0.5)))
-                .cornerRadius(58)
+                .cornerRadius(36)
                 .padding([.all], -8)
             
             // If cardData is not available, card displays loading state.
@@ -76,7 +76,7 @@ struct CardView: View, Flipable {
                 .background{
                     Color.white
                 }
-                .cornerRadius(50)
+                .cornerRadius(28)
             }
             
         }
