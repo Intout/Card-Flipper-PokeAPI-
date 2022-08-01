@@ -15,6 +15,7 @@ struct CardView: View, Flipable {
     
     @Binding var cardData: CardData?
     @Binding var degree: CGFloat
+    @Binding var flipCount: Int
     
     var body: some View {
         VStack{
@@ -56,13 +57,13 @@ struct CardView: View, Flipable {
                 .cornerRadius(50)
             }
         }
-        .rotation3DEffect(Angle(degrees: degree), axis: (x: 0.1, y: 1, z: 0))
+        .rotation3DEffect(Angle(degrees: degree), axis: (x: flipCount % 2 == 0 ? 1 : 0.1, y: flipCount % 2 == 0 ? 0.1 : 1, z: 0))
         
     }
 }
 
 struct CardView_Previews: PreviewProvider {
     static var previews: some View {
-        CardView(cardData: Binding<CardData?>.constant(.init(iconURL: "", name: "Title", health: 1, attack: 1, defense: 1)), degree: Binding<CGFloat>.constant(0))
+        CardView(cardData: Binding<CardData?>.constant(.init(iconURL: "", name: "Title", health: 1, attack: 1, defense: 1)), degree: Binding<CGFloat>.constant(0), flipCount: Binding<Int>.constant(0))
     }
 }
