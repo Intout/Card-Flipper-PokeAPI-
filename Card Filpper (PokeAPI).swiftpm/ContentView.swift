@@ -5,6 +5,7 @@ struct ContentView: View {
     @StateObject private var viewModel = ViewModel()
     @State var frontDegree: CGFloat = 0.01
     @State var backDegree: CGFloat = 89.99
+    @State var cardOffset: CGFloat = 0
     @State private var flipCount: Int = 0
     
     @State private var frontImage: Image?
@@ -21,7 +22,21 @@ struct ContentView: View {
             
             VStack {
                 HStack{
-                    Button(action: {viewModel.viewDidLoad()}){
+                    Button(action:
+                            {
+                        
+                        if viewModel.isFlipped{
+                            frontImage = nil
+                            withAnimation(.linear(duration: viewModel.delay)){
+                                backDegree = 89.99
+                            }
+                            withAnimation(.interpolatingSpring(stiffness: 100, damping: 10).delay(viewModel.delay)){
+                                frontDegree = 0.01
+                            }
+                            viewModel.isFlipped.toggle()
+                        }
+                        cardResetAnimation(displayWith: geometry.size.height)
+                    }){
                         ZStack{
                             Circle()
                                 .foregroundColor(.white)
@@ -41,7 +56,7 @@ struct ContentView: View {
                 .padding([.leading, .trailing], 16)
                 Spacer()
                 ZStack{
-                    CardView(cardData: $viewModel.frontData, degree: $frontDegree, image: $frontImage, flipCount: $flipCount)
+                    CardView(cardData: $viewModel.frontData, degree: $frontDegree, image: $frontImage, flipCount: $flipCount, cardOffset: $cardOffset)
                     // Maximum width and height setted for iPad.
                         .frame(
                             maxWidth: sizeClass == .compact ? 400 : 600, maxHeight: sizeClass == .compact ? 600 : 400
@@ -64,7 +79,7 @@ struct ContentView: View {
                                 }
                             }
                         }
-                    CardView(cardData: $viewModel.backData, degree: $backDegree, image: $backImage, flipCount: $flipCount)
+                    CardView(cardData: $viewModel.backData, degree: $backDegree, image: $backImage, flipCount: $flipCount, cardOffset: $cardOffset)
                         .frame(
                             maxWidth: sizeClass == .compact ? 400 : 600, maxHeight: sizeClass == .compact ? 600 : 400
                         )
@@ -123,5 +138,15 @@ private extension ContentView{
                 backDegree = 0.01
             }
         }
-    }    
+    }
+    
+    func cardResetAnimation(displayWith: CGFloat){
+        withAnimation(.interpolatingSpring(stiffness: 100, damping: 10)){
+            cardOffset = displayWith
+        }
+        viewModel.viewDidLoad()
+        withAnimation(.interpolatingSpring(stiffness: 100, damping: 10).delay(viewModel.delay)){
+            cardOffset = 0
+        }
+    }
 }
