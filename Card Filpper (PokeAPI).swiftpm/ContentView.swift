@@ -14,6 +14,8 @@ struct ContentView: View {
     @State private var backColorAvarage: Color?
     @State private var backgroundColor: Color = .purple
     
+    @Environment(\.horizontalSizeClass) var sizeClass
+    
     var body: some View {
         GeometryReader{ geometry in
             
@@ -40,7 +42,17 @@ struct ContentView: View {
                 Spacer()
                 ZStack{
                     CardView(cardData: $viewModel.frontData, degree: $frontDegree, image: $frontImage, flipCount: $flipCount)
-                        .frame(width: 3 * geometry.size.width/4, height: 2 * geometry.size.height/3)
+                    // Maximum width and height setted for iPad.
+                        .frame(
+                            maxWidth: sizeClass == .compact ? 400 : 600, maxHeight: sizeClass == .compact ? 600 : 400
+                        )
+                    
+                    // Aspect ratio is preserved depending on compact or regular horizontal size.
+                        .frame(
+                            width: sizeClass == .compact ? 3 * geometry.size.width/4 : 2 * geometry.size.width/3,
+                            height: sizeClass == .compact ? 2 * geometry.size.height/3 : 3 * geometry.size.height/4
+                        )
+                        
                         // If image data fetched, it published to onrecive function thus data is converted to uıimage and SwiftUI image.
                         .onReceive(viewModel.$frontImageData){ data in
                             if let data = data{
@@ -53,7 +65,13 @@ struct ContentView: View {
                             }
                         }
                     CardView(cardData: $viewModel.backData, degree: $backDegree, image: $backImage, flipCount: $flipCount)
-                        .frame(width: 3 * geometry.size.width/4, height: 2 * geometry.size.height/3)
+                        .frame(
+                            maxWidth: sizeClass == .compact ? 400 : 600, maxHeight: sizeClass == .compact ? 600 : 400
+                        )
+                        .frame(
+                            width: sizeClass == .compact ? 3 * geometry.size.width/4 : 2 * geometry.size.width/3,
+                            height: sizeClass == .compact ? 2 * geometry.size.height/3 : 3 * geometry.size.height/4
+                        )
                         .onReceive(viewModel.$backImageData){ data in
                             if let data = data{
                                 let uiImage = UIImage(data: data)!
