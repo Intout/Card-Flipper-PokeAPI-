@@ -19,7 +19,13 @@ struct CardView: View, Flipable {
     @Binding var flipCount: Int
     
     var body: some View {
-        VStack{
+        ZStack{
+            
+            Rectangle()
+                .foregroundColor(Color(uiColor: .white.withAlphaComponent(0.5)))
+                .cornerRadius(58)
+                .padding([.all], -8)
+            
             if cardData == nil{
                 Text("Loading...")
             } else {
@@ -34,9 +40,6 @@ struct CardView: View, Flipable {
                         image
                             .resizable()
                             .scaledToFit()
-                            .background(){
-                                Color.blue
-                            }
                     } else {
                         ProgressView()
                     }
@@ -65,8 +68,10 @@ struct CardView: View, Flipable {
                 }
                 .cornerRadius(50)
             }
+            
         }
         .rotation3DEffect(Angle(degrees: degree), axis: (x: flipCount % 2 == 0 ? 1 : 0.1, y: flipCount % 2 == 0 ? 0.1 : 1, z: 0))
+        
         
     }
 }
