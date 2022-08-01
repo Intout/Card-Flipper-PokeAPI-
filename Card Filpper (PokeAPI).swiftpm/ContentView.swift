@@ -7,7 +7,7 @@ struct ContentView: View {
     @State var backDegree: CGFloat = 89.99
     @State private var flipCount: Int = 0
     
-    @State private var fronImage: Image?
+    @State private var frontImage: Image?
     @State private var backImage: Image?
     
     @State private var frontColorAvarage: Color?
@@ -31,6 +31,7 @@ struct ContentView: View {
                                 
                         }
                     }
+                    // If data is not still fetched from API, reset button will be disabled until data available.
                     .disabled(viewModel.frontData == nil)
                     .frame(width: 48, height: 48)
                     Spacer()
@@ -38,13 +39,14 @@ struct ContentView: View {
                 .padding([.leading, .trailing], 16)
                 Spacer()
                 ZStack{
-                    CardView(cardData: $viewModel.frontData, degree: $frontDegree, image: $fronImage, flipCount: $flipCount)
+                    CardView(cardData: $viewModel.frontData, degree: $frontDegree, image: $frontImage, flipCount: $flipCount)
                         .frame(width: 3 * geometry.size.width/4, height: 2 * geometry.size.height/3)
-                
+                        // If image data fetched, it published to onrecive function thus data is converted to uıimage and SwiftUI image.
                         .onReceive(viewModel.$frontImageData){ data in
                             if let data = data{
-                                var uiImage = UIImage(data: data)!
-                                fronImage = Image(uiImage: uiImage)
+                                // UIImage used to accessing CIImage data and applying CIFilter to find average color of picture.
+                                let uiImage = UIImage(data: data)!
+                                frontImage = Image(uiImage: uiImage)
                                 withAnimation(.linear(duration: viewModel.delay)){
                                     backgroundColor = Color( uiImage.averageColor ?? .clear)
                                 }
@@ -54,7 +56,7 @@ struct ContentView: View {
                         .frame(width: 3 * geometry.size.width/4, height: 2 * geometry.size.height/3)
                         .onReceive(viewModel.$backImageData){ data in
                             if let data = data{
-                                var uiImage = UIImage(data: data)!
+                                let uiImage = UIImage(data: data)!
                                 backImage = Image(uiImage: uiImage)
                                 withAnimation(.linear(duration: viewModel.delay)){
                                     backgroundColor = Color( uiImage.averageColor ?? .clear)
@@ -64,6 +66,7 @@ struct ContentView: View {
                 }
                     .onTapGesture {
                         flipCardAction()
+                        // Flip count is saved to memory to switching between horizontal and vertical flip.
                         flipCount += 1
                     }
                 Spacer()
@@ -84,7 +87,7 @@ private extension ContentView{
     func flipCardAction(){
         viewModel.flipCard()
         if viewModel.isFlipped{
-            fronImage = nil
+            frontImage = nil
             withAnimation(.linear(duration: viewModel.delay)){
                 backDegree = 89.99
             }

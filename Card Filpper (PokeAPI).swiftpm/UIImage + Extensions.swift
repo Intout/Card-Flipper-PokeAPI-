@@ -14,6 +14,7 @@ extension UIImage {
         guard let inputImage = CIImage(image: self) else { return nil }
         
         // Create an extent vector (a frame with width and height of our current input image)
+        // Blob is centered to image and 1/8 of image size is used for average color calculation.
         let extentVector = CIVector(x: inputImage.extent.size.width / 2,
                                     y: inputImage.extent.size.height / 2,
                                     z: inputImage.extent.size.width / 8,

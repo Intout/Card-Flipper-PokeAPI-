@@ -21,11 +21,13 @@ struct CardView: View, Flipable {
     var body: some View {
         ZStack{
             
+            // Overlay Rectangle for transparent borders.
             Rectangle()
                 .foregroundColor(Color(uiColor: .white.withAlphaComponent(0.5)))
                 .cornerRadius(58)
                 .padding([.all], -8)
             
+            // If cardData is not available, card displays loading state.
             if cardData == nil{
                 Text("Loading...")
             } else {
@@ -67,7 +69,6 @@ struct CardView: View, Flipable {
                         }
                         .frame(minWidth: 0, maxWidth: .infinity)
                     }
-                    //.fixedSize(horizontal: true, vertical: false)
                 }
                 .padding([.leading, .trailing], 30)
                 .padding([.top, .bottom], 30)
@@ -78,6 +79,7 @@ struct CardView: View, Flipable {
             }
             
         }
+        // Horizontal and vertical flip is switched according to flip count.
         .rotation3DEffect(Angle(degrees: degree), axis: (x: flipCount % 2 == 0 ? 1 : 0.1, y: flipCount % 2 == 0 ? 0.1 : -1, z: 0))
         
         

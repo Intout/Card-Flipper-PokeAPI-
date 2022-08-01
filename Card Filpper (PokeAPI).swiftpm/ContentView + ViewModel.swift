@@ -24,7 +24,10 @@ extension ContentView{
         
         func viewDidLoad(){
             
+            
             let semaphore = DispatchSemaphore(value: 0)
+            
+            // First Page of data will be fetched for firt time or on reload.
             self.pageNum = 0
             dataModel.fetchAPIdata(for: pageNum){ [unowned self] error, data in
                 guard let data = data else {
@@ -103,6 +106,7 @@ extension ContentView{
         }
         
         
+        /// Logic for card flip. When card flip requested new data for next flip would be prepared.
         func flipCard(){
             // If no pokemon left in current page, itarates to next page.
             let semaphore = DispatchSemaphore(value: 0)
@@ -121,6 +125,7 @@ extension ContentView{
                 semaphore.signal()
             }
             
+            // Fetching Pokemon data should wait before fetching new API Page data.
             semaphore.wait()
             self.dataModel.fetchPokemonData(for: pokemonCollection.first!.url){ [unowned self] error, data in
                 guard let data = data else {
@@ -128,6 +133,7 @@ extension ContentView{
                     return
                 }
                 Task{
+                    // Type Casting
                     let cardData: CardData = .init(
                         iconURL: data.sprites.frontDefault,
                         name: data.name,
@@ -142,6 +148,7 @@ extension ContentView{
                         }?.baseStat ?? 0)
                     print(cardData as Any)
                     
+                    // If card is flipped front data should be ready for next flip otherwise back data should be ready.
                     if isFlipped{
                         self.frontData = cardData
                     } else {
@@ -151,11 +158,15 @@ extension ContentView{
                     isFlipped.toggle()
                 }
             }
+            
+            // Fetched pokemon should be deleted from page collection so new data can be accessable with ".first"
             pokemonCollection.removeFirst()
         }
         
+        /// Fetches Pokemon image data from given link by corresponding to card state.
+        /// - Parameter link: String for Pokemon image URL.
         func getImageData(from link: String){
-            
+            // Image fetched for given pokemon url.
             guard let url = URL(string: link) else { return }
             
             URLSession.shared.dataTask(with: url) { [unowned self] data, response, error in
@@ -177,3 +188,4 @@ extension ContentView{
         
     }
 }
+

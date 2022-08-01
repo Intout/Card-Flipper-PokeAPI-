@@ -16,7 +16,7 @@ extension ContentView{
     class DataModel{
         
         func fetchAPIdata(for pageNum: Int, completionHandler: @escaping (Error?, PokeAPIData?) -> ()){
-            
+            // 20 pokemon metadata fetched from API and offsetted by multipliying current page number with 20.
             guard let url = URL(string: "https://pokeapi.co/api/v2/pokemon/?offset=\(20*pageNum)&limit=20") else {
                 completionHandler(URLError(.badURL), nil)
                 return
