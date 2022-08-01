@@ -12,20 +12,30 @@ struct ContentView: View {
     
     @State private var frontColorAvarage: Color?
     @State private var backColorAvarage: Color?
-    @State private var backgroundColor: Color = .clear
+    @State private var backgroundColor: Color = .purple
     
     var body: some View {
         GeometryReader{ geometry in
             
             VStack {
                 HStack{
-                    Button("Reset"){
-                        
-                        viewModel.viewDidLoad()
+                    Button(action: {viewModel.viewDidLoad()}){
+                        ZStack{
+                            Circle()
+                                .foregroundColor(.white)
+                            Image(systemName: "arrow.clockwise")
+                                .resizable()
+                                .scaledToFit()
+                                .foregroundColor(self.backgroundColor)
+                                .padding([.all], 10)
+                                
+                        }
                     }
+                    .disabled(viewModel.frontData == nil)
+                    .frame(width: 48, height: 48)
                     Spacer()
                 }
-                .padding([.leading, .trailing], 20)
+                .padding([.leading, .trailing], 16)
                 Spacer()
                 ZStack{
                     CardView(cardData: $viewModel.frontData, degree: $frontDegree, image: $fronImage, flipCount: $flipCount)
