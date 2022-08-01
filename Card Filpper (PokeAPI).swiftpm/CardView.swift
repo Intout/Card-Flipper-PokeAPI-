@@ -15,6 +15,7 @@ struct CardView: View, Flipable {
     
     @Binding var cardData: CardData?
     @Binding var degree: CGFloat
+    @Binding var image: AsyncImage<Image>?
     @Binding var flipCount: Int
     
     var body: some View {
@@ -29,8 +30,12 @@ struct CardView: View, Flipable {
                         Spacer()
                     }
                     Spacer()
-                    Image(systemName: "square.and.arrow.down.fill")
-                        .scaledToFill()
+                    if let image = image{
+                        image
+                    } else {
+                        Image(systemName: "square.and.arrow.down.fill")
+                            .scaledToFill()
+                    }
                     Spacer()
                     HStack{
                         VStack{
@@ -64,6 +69,6 @@ struct CardView: View, Flipable {
 
 struct CardView_Previews: PreviewProvider {
     static var previews: some View {
-        CardView(cardData: Binding<CardData?>.constant(.init(iconURL: "", name: "Title", health: 1, attack: 1, defense: 1)), degree: Binding<CGFloat>.constant(0), flipCount: Binding<Int>.constant(0))
+        CardView(cardData: Binding<CardData?>.constant(.init(iconURL: "", name: "Title", health: 1, attack: 1, defense: 1)), degree: Binding<CGFloat>.constant(0), image: .constant(nil), flipCount: Binding<Int>.constant(0))
     }
 }
