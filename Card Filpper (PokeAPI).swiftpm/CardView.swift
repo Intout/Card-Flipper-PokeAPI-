@@ -35,7 +35,7 @@ struct CardView: View, Flipable {
                 VStack{
                     HStack(alignment: .center){
                         Spacer()
-                        Text("\(cardData!.name.uppercased())")
+                        Text("\(cardData!.name.capitalizingFirstLetter())")
                         Spacer()
                     }
                     Spacer()
